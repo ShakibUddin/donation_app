@@ -1,9 +1,12 @@
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:donation_app/data.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class TimeLine extends StatefulWidget {
   @override
@@ -11,14 +14,36 @@ class TimeLine extends StatefulWidget {
 }
 
 class _TimeLineState extends State<TimeLine> {
+
   @override
   Widget build(BuildContext context) {
-
-    void call(Post post){
-      launch(post.mobile);
+    Future<void> _makePhoneCall(String url) async {
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not call $url';
+      }
     }
-    void email(Post post){
-      launch(post.email);
+    Future<void> _sendEmail(String url) async {
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not call $url';
+      }
+    }
+    Future<void> getCurrentLocation() async {
+      final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+
+      geolocator
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+          .then((Position position) {
+        setState(() {
+          latitude = position.latitude;
+          longitude = position.longitude;
+        });
+      }).catchError((e) {
+        print(e);
+      });
     }
     void showCallDialogue(BuildContext context, Post post) {
       showDialog<void>(
@@ -37,7 +62,8 @@ class _TimeLineState extends State<TimeLine> {
                   style: TextStyle(color: Colors.green),
                 ),
                 onPressed: () {
-                  call(post);
+                  _makePhoneCall("tel:${post.mobile}").then((value) =>
+                      Navigator.of(context).pop());
                 },
               ),
               FlatButton(
@@ -72,7 +98,8 @@ class _TimeLineState extends State<TimeLine> {
                   style: TextStyle(color: Colors.green),
                 ),
                 onPressed: () {
-                  email(post);
+                  _sendEmail("mailto:${post.email}").then((value) =>
+                      Navigator.of(context).pop());
                 },
               ),
               FlatButton(
@@ -106,7 +133,13 @@ class _TimeLineState extends State<TimeLine> {
                   "Yes",
                   style: TextStyle(color: Colors.green),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  getCurrentLocation().whenComplete(() {
+                    print("lat $latitude, long $longitude");
+                    Navigator.of(context).pushNamed('/mappage');
+                  });
+                },
               ),
               FlatButton(
                 child: Text(
@@ -170,15 +203,15 @@ class _TimeLineState extends State<TimeLine> {
             ),
             post.imagePath == null
                 ? Image.asset(
-                    'images/food_bowl.jpg',
-                    fit: BoxFit.cover,
-                  )
+              'images/food_bowl.jpg',
+              fit: BoxFit.cover,
+            )
                 : Image.file(
-                    File(post.imagePath),
-                    fit: BoxFit.contain,
-                    height: 300,
-                    width: 300,
-                  ),
+              File(post.imagePath),
+              fit: BoxFit.contain,
+              height: 300,
+              width: 300,
+            ),
             Divider(color: Colors.grey, height: 20, thickness: 1),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,

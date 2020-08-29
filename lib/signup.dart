@@ -237,7 +237,7 @@ class _SignupState extends State<Signup> {
                               onPressed: () {
                                 if (_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
-                                  UserCredentials.id = UserCredentials.id + 1;
+                                  UserCredentials.userID = UserCredentials.userID + 1;
                                   userCredentials.add(new UserCredentials(
                                       _name, _email, _mobileNumber, _password));
                                   Navigator.of(context).pop();

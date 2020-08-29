@@ -5,6 +5,8 @@ import 'package:donation_app/signup.dart';
 import 'package:donation_app/upload.dart';
 import 'package:flutter/material.dart';
 
+import 'mappage.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MaterialApp(
@@ -16,6 +18,7 @@ void main() {
       '/timeline' : (context) => TimeLine(),
       '/profile' : (context) => Profile(),
       '/upload' : (context) => Upload(),
+      '/mappage' : (context) => MapPage(),
     },
   ));
 }

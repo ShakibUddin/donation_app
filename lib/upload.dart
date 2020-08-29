@@ -86,6 +86,7 @@ class _UploadState extends State<Upload> {
               onPressed: () {
                 if (_formKey.currentState.validate()) {
                   _formKey.currentState.save();
+                  Post.postID = Post.postID + 1;
                   posts.add(new Post(currentUser.name, _description, _imagePath,
                       _mobileNumber, _address, _email));
                   showSuccessDialogue(context);
